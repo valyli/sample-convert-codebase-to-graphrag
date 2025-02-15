@@ -1,0 +1,30 @@
+{
+  "name": "sample-convert-codebase-to-graphrag",
+  "version": "0.2.0",
+  "bin": {
+    "code_graph_search": "bin/code_graph_search.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "buildClient": "cd client && npm install && npm run build",
+    "installAll": "node scripts/install-lambda-deps.js",
+    "deployAll": "npm run installAll && npm run buildClient && cdk bootstrap && cdk deploy --require-approval never",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "22.7.9",
+    "aws-cdk": "2.171.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.171.0",
+    "cdk-nag": "^2.35.14",
+    "constructs": "^10.0.0"
+  }
+}
