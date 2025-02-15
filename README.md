@@ -4,46 +4,6 @@ This is a demo to show how to leverages AI to analyze, index, and query code rep
 
 This project combines several AWS services, including Lambda, Neptune, OpenSearch, and Bedrock, to process code repositories, generate metadata, and provide powerful search capabilities. The system is designed to handle large-scale code analysis tasks and offer semantic code search functionality.
 
-## Repository Structure
-
-```
-.
-├── bin
-│   └── code_graph_search.ts
-├── client
-│   ├── src
-│   │   ├── App.vue
-│   │   ├── components
-│   │   ├── main.js
-│   │   └── views
-│   └── vue.config.js
-├── lambda
-│   ├── awslibs
-│   │   ├── s3.js
-│   │   └── sqs.js
-│   ├── codeDownloader
-│   │   └── index.js
-│   ├── codeReader
-│   │   └── index.js
-│   ├── codeSummarizer
-│   │   └── index.js
-│   ├── graphSearchManagement
-│   │   └── index.js
-│   ├── libs
-│   │   ├── bedrock
-│   │   ├── constants.js
-│   │   ├── embedding
-│   │   ├── neptune
-│   │   ├── opensearch
-│   │   └── repositoryReader.js
-│   └── searchCodeGraph
-│       └── index.js
-├── lib
-│   └── code_graph_search-stack.ts
-└── test
-    └── code_graph_search.test.ts
-```
-
 ### Key Files
 
 - `bin/code_graph_search.ts`: Entry point for the CDK application
