@@ -73,10 +73,11 @@ async function createIndex(indexName) {
                         "name": "hnsw",
                         "engine": "nmslib",
                         "parameters": {
-                            "ef_construction": 128,
+                            "ef_construction": 256,
                             "m": 24
                         }
-                    }
+                    },
+                    "similarity": "cosine"
                 }
             }
         }
@@ -114,7 +115,7 @@ async function upsertDocuments(operations) {
 
 // 语意查询
 // 执行语义搜索
-async function semanticSearch(indexName, vector, size = 5) {
+async function semanticSearch(indexName, queryContent, vector, size = 5) {
     await initClient();
 
     try {

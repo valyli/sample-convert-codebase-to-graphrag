@@ -19,6 +19,7 @@
 const TYPE_PATH = 'Path';
 const TYPE_CLASS = 'Class'; 
 const TYPE_FUNCTION = 'Function';
+const TYPE_ENUM = 'Enum';
 const EDGE_CONTAINS = 'contains';
 const EDGE_CALL = 'calls';
 const EDGE_EXTENDS = 'extends';
@@ -60,6 +61,7 @@ module.exports = {
   TYPE_PATH,
   TYPE_CLASS,
   TYPE_FUNCTION,
+  TYPE_ENUM,
   EDGE_CONTAINS,
   EDGE_CALL,
   EDGE_EXTENDS,

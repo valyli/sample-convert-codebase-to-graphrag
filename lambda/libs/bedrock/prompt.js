@@ -21,8 +21,8 @@ Based on the given code and the comments inline, summary the purpose of each fun
 
 1. Fetch the class name and the package info.  Fetch as much as properties if possible. When define its parent class, use the package+classname rather than a class name. For example, “extends”: com/aws/package/parentClass"
 2. Find out the function call relationships within the code which shall be described in innerDependencies
-3. Find out the external dependencies of any function. Clearly describe the target function's package and class. 
-4. Don't bother to figure out the function parameters, that is not needed.
+3. Find out the external dependencies in each function, including function calls another function and function uses an enum. Exclude the class level dependencies.
+4. Don't bother to list the parameters in function, that is not needed.
 5. Please pay attention to function with the “this" scope. Need to check if the target function exists, if not, it will be an outerDependency to its parent class. Also, super.functionCall() implies it has an outerDependency to the function in the parent class.
 6. When create the path property, please use the package info.
 
@@ -133,11 +133,13 @@ Follow the format of the given response, please don't include anything out of th
     "InnerDependencies": [
         {
             "From": "generateInvoice",
-            "To": "getEmployeeById"
+            "ToType": "Function",
+            "ToName": "getEmployeeById"
         },
         {
             "From": "addSalary",
-            "To": "getEmployeeById"
+            "ToType": "Enum",
+            "ToName": "ROLE_EMPLOYEE"
         }
     ],
     "OuterDependencies": [
@@ -146,7 +148,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findAll"
+                "Type": "Function",
+                "Name": "findAll"
             }
         },
         {
@@ -154,7 +157,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findById"
+                "Type": "Function",
+                "Name": "findById"
             }
         },
         {
@@ -162,7 +166,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findById"
+                "Type": "Function",
+                "Name": "findById"
             }
         },
         {
@@ -170,7 +175,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "save"
+                "Type": "Function",
+                "Name": "save"
             }
         },
         {
@@ -178,7 +184,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findById"
+                "Type": "Function",
+                "Name": "findById"
             }
         },
         {
@@ -186,7 +193,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "deleteById"
+                "Type": "Function",
+                "Name": "deleteById"
             }
         },
         {
@@ -194,7 +202,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findById"
+                "Type": "Function",
+                "Name": "findById"
             }
         },
         {
@@ -202,7 +211,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "EmployeeRepository",
-                "FunctionName": "findById"
+                "Type": "Function",
+                "Name": "findById"
             }
         },
         {
@@ -210,7 +220,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "TaxRepository",
-                "FunctionName": "findByProvinceAndSalary"
+                "Type": "Enum",
+                "Name": "GRAPH_FILES_TABLE_COLUMN_GRAPH_ID"
             }
         },
         {
@@ -218,7 +229,8 @@ Follow the format of the given response, please don't include anything out of th
             "To": {
                 "Path": "ca/concordia/soen6841/dbservice/repository",
                 "ClassName": "InvoiceRepository",
-                "FunctionName": "save"
+                "Type": "Enum",
+                "Name": "CODE_GRAPH_TABLE"
             }
         }
     ]
@@ -355,16 +367,14 @@ Below is an example of the response, please don't response anything exception th
         ],
         "InnerDependencies": [
             {
-                "From": "detail",
-                "To": "ok"
+                "From": "generateInvoice",
+                "ToType": "Function",
+                "ToName": "getEmployeeById"
             },
             {
-                "From": "save",
-                "To": "ok"
-            },
-            {
-                "From": "constructor",
-                "To": "routers"
+                "From": "addSalary",
+                "ToType": "Enum",
+                "ToName": "ROLE_EMPLOYEE"
             }
         ],
         "OuterDependencies": [
@@ -373,7 +383,8 @@ Below is an example of the response, please don't response anything exception th
                 "To": {
                     "Path": "src/utils",
                     "ClassName": "response",
-                    "FunctionName": "ok"
+                    "Type": "Function",
+                    "Name": : "ok"
                 }
             },
             {
@@ -381,7 +392,8 @@ Below is an example of the response, please don't response anything exception th
                 "To": {
                     "Path": "src/utils",
                     "ClassName": "response",
-                    "FunctionName": "error"
+                    "Type": "Function",
+                    "Name": : "error"
                 }
             }
         ]

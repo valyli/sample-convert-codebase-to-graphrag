@@ -38,7 +38,7 @@ async function handler(event, context) {
                     console.log(`index_name: ${index_name}, queryContent: ${queryContent}`);
 
                     const vector = await invokeEmbedding(queryContent);
-                    const results = await semanticSearch(index_name, vector, 5);
+                    const results = await semanticSearch(index_name, queryContent, vector, 5);
 
                     console.log(`results: ${JSON.stringify(results, null, 2)}`);
                     if (index_name === FUNC_META_DATA) {

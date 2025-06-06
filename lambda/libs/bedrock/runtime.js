@@ -25,15 +25,17 @@ require('dotenv').config();
 const client = new BedrockRuntimeClient({
     endpoint: `https://${process.env.PRIVATE_BEDROCK_DNS}`
 });
+const { ACCOUNT_ID, REGION } = process.env;
+const bedrockClaude37ModelId = `arn:aws:bedrock:${REGION}:${ACCOUNT_ID}:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0`;
 
 async function invokeCommand(systemPrompt, messages) {
     const params = {
-        modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0", // Claude 3.5 Sonnet V2 模型
+        modelId: bedrockClaude37ModelId,
         contentType: "application/json",
         accept: "application/json",
         body: JSON.stringify({
             anthropic_version: "bedrock-2023-05-31",
-            max_tokens: 20000,
+            max_tokens: 40000,
             system: systemPrompt,
             messages
         }),

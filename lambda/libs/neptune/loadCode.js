@@ -32,6 +32,7 @@ const {
     TYPE_PATH,
     TYPE_CLASS,
     TYPE_FUNCTION,
+    TYPE_ENUM,
     EDGE_CONTAINS,
     EDGE_CALL,
     EDGE_EXTENDS
@@ -61,6 +62,11 @@ const mClassObjMap = new Map();
  * Store the {fullClassName/function_name, functionObj} pair
  */
 const mFunctionObjMap = new Map();
+
+/**
+ * Store the {fullClassName/enum_name, enumObj} pair
+ */
+const mEnumObjMap = new Map();
 
 
 async function processCodeMeta(graphId, pathRoot) {
@@ -111,31 +117,62 @@ async function upsertClassGraph(graphId, classObjList) {
         }
 
         // Upsert the function Obj and upsert the edge with the class.
-        for (const functionObj of classObj.Functions) {
-            console.log(`Processing on functions: ${functionObj.Name}`);
-            const functionPropertyMap = functionObj.Properties ? new Map(functionObj.Properties.flatMap(obj => Object.entries(obj))) : new Map();
-            await upsertFunction(graphId, functionObj.Name, fullClassName, functionPropertyMap);
-            await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(fullClassName), mFunctionObjMap.get(`${fullClassName}/${functionObj.Name}`));
+        if (classObj.Functions) {
+            for (const functionObj of classObj.Functions) {
+                console.log(`Processing on functions: ${functionObj.Name}`);
+                const functionPropertyMap = functionObj.Properties ? new Map(functionObj.Properties.flatMap(obj => Object.entries(obj))) : new Map();
+                await upsertFunction(graphId, functionObj.Name, fullClassName, functionPropertyMap);
+                await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(fullClassName), mFunctionObjMap.get(`${fullClassName}/${functionObj.Name}`));
+            }
+        }
+
+        // Upsert the enum Obj and upsert the edge with class.
+        if (classObj.Enums) {
+            for (const enumObj of classObj.Enums) {
+                console.log(`Processing on enums: ${enumObj.Name}`);
+                const enumPropertyMap = enumObj.Properties ? new Map(enumObj.Properties.flatMap(obj => Object.entries(obj))) : new Map();
+                await upsertEnum(graphId, enumObj.Name, fullClassName, enumPropertyMap);
+                await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(fullClassName), mEnumObjMap.get(`${fullClassName}/${enumObj.Name}`));
+            }
         }
 
         // Upsert the inner dependencies.
-        for (const call of classObj.InnerDependencies) {
-            console.log(`Processing on inner dependency from ${fullClassName}/${call.From} to ${fullClassName}/${call.To}`);
-            await upsertEdge(EDGE_CALL, mFunctionObjMap.get(`${fullClassName}/${call.From}`), mFunctionObjMap.get(`${fullClassName}/${call.To}`));
+        if (classObj.InnerDependencies) {
+            for (const call of classObj.InnerDependencies) {
+                console.log(`Processing on inner dependency from ${fullClassName}/${call.From} to ${call.ToType} ${fullClassName}/${call.ToName}`);
+                let toObj;
+                if (call.ToType == TYPE_FUNCTION) {
+                    toObj = mFunctionObjMap.get(`${fullClassName}/${call.ToName}`);
+                } else if (call.ToType == TYPE_ENUM) {
+                    toObj = mEnumObjMap.get(`${fullClassName}/${call.ToName}`);
+                }
+                if (toObj) {
+                    await upsertEdge(EDGE_CALL, mFunctionObjMap.get(`${fullClassName}/${call.From}`), toObj);
+                }
+            }
         }
 
         // Upsert the outer dependencies.
-        for (const call of classObj.OuterDependencies) {
-            if (!fullClassName || !call || !call.From || !call.To || !call.To.Path || !call.To.ClassName || !call.To.FunctionName) {
-                continue;
+        if (classObj.OuterDependencies) {
+            for (const call of classObj.OuterDependencies) {
+                if (!fullClassName || !call || !call.From || !call.To || !call.To.Path || !call.To.ClassName || !call.To.Type || !call.To.Name) {
+                    continue;
+                }
+                console.log(`Processing on outer dependency from ${fullClassName}/${call.From} to ${call.To.Type} ${call.To.Path}/${call.To.ClassName}/${call.To.Name}`);
+                await upsertPath(graphId, call.To.Path);
+                await upsertClass(graphId, call.To.ClassName, call.To.Path, classObj.Class.FileExtension, new Map());
+                await upsertEdge(EDGE_CONTAINS, mPathObjMap.get(call.To.Path), mClassObjMap.get(`${call.To.Path}/${call.To.ClassName}`));
+
+                if (call.To.Type == TYPE_FUNCTION) {
+                    await upsertFunction(graphId, call.To.Name, `${call.To.Path}/${call.To.ClassName}`, new Map());
+                    await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(`${call.To.Path}/${call.To.ClassName}`), mFunctionObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.Name}`));
+                    await upsertEdge(EDGE_CALL, mFunctionObjMap.get(`${fullClassName}/${call.From}`), mFunctionObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.Name}`));
+                } else if (call.To.Type == TYPE_ENUM) {
+                    await upsertEnum(graphId, call.To.Name, `${call.To.Path}/${call.To.ClassName}`, new Map());
+                    await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(`${call.To.Path}/${call.To.ClassName}`), mEnumObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.Name}`));
+                    await upsertEdge(EDGE_CALL, mFunctionObjMap.get(`${fullClassName}/${call.From}`), mEnumObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.Name}`));
+                }
             }
-            console.log(`Processing on outer dependency from ${fullClassName}/${call.From} to ${call.To.Path}/${call.To.ClassName}/${call.To.FunctionName}`);
-            await upsertPath(graphId, call.To.Path);
-            await upsertClass(graphId, call.To.ClassName, call.To.Path, classObj.Class.FileExtension, new Map());
-            await upsertEdge(EDGE_CONTAINS, mPathObjMap.get(call.To.Path), mClassObjMap.get(`${call.To.Path}/${call.To.ClassName}`));
-            await upsertFunction(graphId, call.To.FunctionName, `${call.To.Path}/${call.To.ClassName}`, new Map());
-            await upsertEdge(EDGE_CONTAINS, mClassObjMap.get(`${call.To.Path}/${call.To.ClassName}`), mFunctionObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.FunctionName}`));
-            await upsertEdge(EDGE_CALL, mFunctionObjMap.get(`${fullClassName}/${call.From}`), mFunctionObjMap.get(`${call.To.Path}/${call.To.ClassName}/${call.To.FunctionName}`));
         }
     }
 }
@@ -213,6 +250,21 @@ async function upsertFunction(graphId, name, fullClassName, params = new Map()) 
     }
     result = await result.next();
     mFunctionObjMap.set(`${fullClassName}/${name}`, result.value);
+}
+
+async function upsertEnum(graphId, name, fullClassName, params = new Map()) {
+    let result = g.V().hasLabel(TYPE_ENUM).has('graphId', graphId).has('name', name).has('full_classname', fullClassName).fold().coalesce(
+        __.unfold(),
+        __.addV(TYPE_ENUM).
+            property(cardinality.single, 'graphId', graphId).
+            property(cardinality.single, 'name', name).
+            property(cardinality.single, 'full_classname', fullClassName)
+    )
+    for (const [key, value] of params) {
+        result = result.property(cardinality.single, key, value);
+    }
+    result = await result.next();
+    mEnumObjMap.set(`${fullClassName}/${name}`, result.value);
 }
 
 async function upsertEdge(type, fromObj, toObj) {

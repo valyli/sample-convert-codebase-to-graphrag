@@ -58,8 +58,12 @@ async function handler(event, context) {
             if (!command || command.length === 0 || !graphId || graphId.length === 0) {
                 throw new Error('Missing commmand parameter.');
             }
+            if (command === 'clearOpensearch') {
+                await deleteIndex(PATH_META_DATA);
+                await deleteIndex(CLASS_META_DATA);
+                await deleteIndex(FUNC_META_DATA);
 
-            if (command === 'clearGraph') {
+            } else if (command === 'clearGraph') {
                 await dropByGraphId(graphId);
                 await deleteItemsByGraphId(PATH_META_DATA, graphId);
                 await deleteItemsByGraphId(CLASS_META_DATA, graphId);

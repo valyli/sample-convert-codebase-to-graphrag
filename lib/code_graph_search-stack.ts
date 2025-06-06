@@ -304,6 +304,7 @@ export class CodeGraphSearchStack extends cdk.Stack {
       reservedConcurrentExecutions: 1,
     });
     codeReaderLambdaFunction.addEnvironment('REGION', this.region);
+    codeReaderLambdaFunction.addEnvironment('ACCOUNT_ID', this.account);
     codeReaderLambdaFunction.addEnvironment('S3_BUCKET_NAME', codeDownloadBucket.bucketName);
     codeReaderLambdaFunction.addEnvironment('PRIVATE_BEDROCK_DNS', `bedrock-runtime.${this.region}.amazonaws.com`);
     codeReaderLambdaFunction.addEnvironment('PRIVATE_NEPTUNE_DNS', neptuneCluster.attrReadEndpoint);
