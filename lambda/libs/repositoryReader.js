@@ -17,7 +17,7 @@
  */
 
 const { invokeCommand } = require('./bedrock/runtime');
-const { systemPrompt } = require('./bedrock/prompt');
+const { getSystemPrompt } = require('./bedrock/prompt');
 const fs = require('fs');
 const path = require('path');
 const { findFiles } = require('./utils/utils');
@@ -25,6 +25,7 @@ const { findFiles } = require('./utils/utils');
 const resFolder = '/tmp/res';
 
 async function generateClassMeta(repoFileStructure, fileName, classContent) {
+    let systemPrompt = getSystemPrompt(fileName);
     const messages = [
         {
             role: "user",
@@ -85,7 +86,7 @@ async function scanFile(localRepositoryRoot, fileStructure, file) {
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
         fs.writeFileSync(filePath, classMeta);
 
-        return { fileName: fileNameToSave, fullPath: filePath };
+        return { fileName: fileNameToSave, fullPath: filePath, fileContent: classMeta };
     } catch (err) {
         console.error(`Error processing file ${file}: ${err}`);
         console.error(err.stack);

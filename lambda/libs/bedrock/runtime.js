@@ -28,7 +28,7 @@ const client = new BedrockRuntimeClient({
 
 async function invokeCommand(systemPrompt, messages) {
     const params = {
-        modelId: "anthropic.claude-3-sonnet-20240229-v1:0", // Claude 3 Sonnet 模型
+        modelId: "anthropic.claude-3-5-sonnet-20241022-v2:0", // Claude 3.5 Sonnet V2 模型
         contentType: "application/json",
         accept: "application/json",
         body: JSON.stringify({

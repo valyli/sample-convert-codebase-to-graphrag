@@ -70,7 +70,7 @@ async function processCodeMeta(graphId, pathRoot) {
         console.log(`Loading file: ${file}`);
         const fileContent = fs.readFileSync(file, 'utf8');
         try {
-            await loadFile(graphId, JSON.parse(fileContent));
+            await processFile(graphId, JSON.parse(fileContent));
         } catch (error) {
             console.error(`An error occurred during bulk upsert: ${error}`);
         }
@@ -78,7 +78,7 @@ async function processCodeMeta(graphId, pathRoot) {
 }
 
 
-async function loadFile(graphId, classObjList) {
+async function processFile(graphId, classObjList) {
     // If type of classObjList is Array
     if (!Array.isArray(classObjList)) {
         classObjList = new Array(classObjList);
@@ -193,7 +193,8 @@ async function upsertClass(graphId, name, path, fileExtension, params = new Map(
             property(cardinality.single, 'file_extension', fileExtension)
     )
     for (const [key, value] of params) {
-        result = result.property(cardinality.single, key, value);
+        const stringValue = Array.isArray(value) ? value.join(', ') : String(value);
+        result = result.property(cardinality.single, key, stringValue);
     }
     result = await result.next();
     mClassObjMap.set(`${path}/${name}`, result.value);
@@ -227,4 +228,4 @@ async function dropByGraphId(graphId) {
     await g.V().has('graphId', graphId).drop().iterate();
 }
 
-module.exports = { processCodeMeta, upsertPathDescription, dropByGraphId }
+module.exports = { processCodeMeta, upsertPathDescription, dropByGraphId, processFile }

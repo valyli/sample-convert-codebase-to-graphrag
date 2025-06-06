@@ -32,7 +32,11 @@ async function saveGraphFileItems(graphId, downloadDir, fileList, fileMatcher) {
     const batchSize = 25;
 
     const relativePaths = fileList.map(file => path.relative(downloadDir, file));
-    const filteredFiles = relativePaths.filter(file => minimatch(file, fileMatcher));
+    let filteredFiles = relativePaths.filter(file => minimatch(file, fileMatcher));
+    
+    // Exlcude the test codes.
+    filteredFiles = filteredFiles.filter(file => !file.includes('src/test'));
+
 
     for (let i = 0; i < filteredFiles.length; i += batchSize) {
         const items = filteredFiles.slice(i, i + batchSize).map(file => {

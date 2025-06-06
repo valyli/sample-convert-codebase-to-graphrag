@@ -283,7 +283,7 @@ export class CodeGraphSearchStack extends cdk.Stack {
       handler: 'index.handler',
       role: codeDownloadLambdaRole,
       timeout: cdk.Duration.minutes(15),
-      memorySize: 128,
+      memorySize: 512,
     });
     codeDownloadLambdaFunction.addEnvironment('S3_BUCKET_NAME', codeDownloadBucket.bucketName);
     codeDownloadLambdaFunction.addEnvironment('CODE_DOWNLOAD_QUEUE_URL', codeDownloadQueue.queueUrl);
@@ -306,6 +306,9 @@ export class CodeGraphSearchStack extends cdk.Stack {
     codeReaderLambdaFunction.addEnvironment('REGION', this.region);
     codeReaderLambdaFunction.addEnvironment('S3_BUCKET_NAME', codeDownloadBucket.bucketName);
     codeReaderLambdaFunction.addEnvironment('PRIVATE_BEDROCK_DNS', `bedrock-runtime.${this.region}.amazonaws.com`);
+    codeReaderLambdaFunction.addEnvironment('PRIVATE_NEPTUNE_DNS', neptuneCluster.attrReadEndpoint);
+    codeReaderLambdaFunction.addEnvironment('PRIVATE_NEPTUNE_PORT', neptuneCluster.attrPort);
+    codeReaderLambdaFunction.addEnvironment('OPENSEARCH_DNS', codeGraphOpenSearch.attrDomainEndpoint);
     codeReaderLambdaFunction.addEnvironment('CODE_READER_QUEUE_URL', codeReaderQueue.queueUrl);
     codeReaderLambdaFunction.addEnvironment('CODE_DOWNLOAD_QUEUE_URL', codeDownloadQueue.queueUrl);
     

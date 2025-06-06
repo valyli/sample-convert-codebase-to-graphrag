@@ -26,6 +26,7 @@ const {
 } = require('libs/constants');
 const { listGraphFiles, markScaned } = require('libs/dynamodb/graphFilesTable');
 const { getCodeGraph, updateCodeGraphStatus } = require('libs/dynamodb/codeGraphTable');
+const { processFile } = require('libs/neptune/loadCode');
 
 require('dotenv').config();
 const bucketName = `${process.env.S3_BUCKET_NAME}`;
@@ -63,10 +64,13 @@ async function processCodeBatch(uuid, allFiles, batchSize) {
         let localFilePath = await downloadS3File(bucketName, `${CODE_SOURCE_BUCKET_PREFIX}/${uuid}`, filePath, localFolder);
 
         // Analyse the file
-        const { fileName, fullPath } = await scanFile(localFolder, allFiles, localFilePath);
+        const { fileName, fullPath, fileContent } = await scanFile(localFolder, allFiles, localFilePath);
 
         // Upload the scanned file to S3
         const result = await uploadFileToS3(bucketName, fullPath, `${CODE_PROCRESS_BUCKET_PREFIX}/${uuid}/${fileName}`);
+
+        // Save the object info to Neptune & rag
+        await processFile(uuid, JSON.parse(fileContent));
 
         // Update the dynamodb
         if (result) {
