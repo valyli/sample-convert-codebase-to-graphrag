@@ -25,18 +25,10 @@ const {
     GRAPH_FILES_TABLE_COLUMN_SCANED,
 } = require('../constants');
 const path = require('path');
-const minimatch = require('minimatch').minimatch;
 
 
-async function saveGraphFileItems(graphId, downloadDir, fileList, fileMatcher) {
+async function saveGraphFileItems(graphId, filteredFiles) {
     const batchSize = 25;
-
-    const relativePaths = fileList.map(file => path.relative(downloadDir, file));
-    let filteredFiles = relativePaths.filter(file => minimatch(file, fileMatcher));
-    
-    // Exlcude the test codes.
-    filteredFiles = filteredFiles.filter(file => !file.includes('src/test'));
-
 
     for (let i = 0; i < filteredFiles.length; i += batchSize) {
         const items = filteredFiles.slice(i, i + batchSize).map(file => {

@@ -26,7 +26,8 @@ Based on the given code and the comments inline, summary the purpose of each fun
 5. Please pay attention to function with the “this" scope. Need to check if the target function exists, if not, it will be an outerDependency to its parent class. Also, super.functionCall() implies it has an outerDependency to the function in the parent class.
 6. When create the path property, please use the package info.
 
-Follow the format of the given response, please don't include anything out of the JSON. If the input content is not code, just response an empty JSON object.
+Please follow the format of the below content, if the input content is not code, just response an empty JSON object.
+The result is not for human to read don't put any Markdown symbol, instead it will be pased to a JSON object in code, so please just output a valid JSON format as your response.
 {
     "Class": {
         "Path": "ca/concordia/soen6841/dbservice/controller",

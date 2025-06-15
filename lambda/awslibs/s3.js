@@ -19,6 +19,7 @@
 const { S3Client, PutObjectCommand, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
 const path = require('path');
 const fs = require('fs');
+const minimatch = require('minimatch').minimatch;
 
 const s3Client = new S3Client();
 
@@ -44,33 +45,35 @@ async function uploadFileToS3(bucketName, filePath, key) {
     }
 }
 
-async function uploadFolderToS3(bucketName, folderPath, bucketPrefix = '') {
+async function uploadFolderToS3(bucketName, downloadDir, bucketPrefix = '', fileMatcher) {
+    const fileList = getFileListFromFolder(downloadDir);
+    const relativePaths = fileList.map(file => path.relative(downloadDir, file));
+    let filteredFiles = relativePaths.filter(file => minimatch(file, fileMatcher));
+
+    // Exlcude the test codes.
+    filteredFiles = filteredFiles.filter(file => !file.includes('src/test'));
+
+    for (const file of filteredFiles) {
+        const filePath = path.join(downloadDir, file);
+        const key = path.join(bucketPrefix, file);
+        await uploadFileToS3(bucketName, filePath, key);
+    }
+
+    return filteredFiles;
+}
+
+function getFileListFromFolder(folderPath) {
     const files = fs.readdirSync(folderPath);
-    const result = [];
+    let result = [];
 
     for (const file of files) {
         const filePath = path.join(folderPath, file);
         const stats = fs.statSync(filePath);
 
         if (stats.isDirectory()) {
-            result.push(...await uploadFolderToS3(bucketName, filePath, path.join(bucketPrefix, file)));
+            result = result.concat(getFileListFromFolder(filePath));
         } else {
-            const fileStream = fs.createReadStream(filePath);
-            const key = path.join(bucketPrefix, file);
-
-            const uploadParams = {
-                Bucket: bucketName,
-                Body: fileStream,
-                Key: key,
-            };
-
-            try {
-                const data = await s3Client.send(new PutObjectCommand(uploadParams));
-                result.push(filePath);
-                console.log(`File uploaded successfully. ${file}`);
-            } catch (err) {
-                console.log('Error', err);
-            }
+            result.push(filePath);
         }
     }
 

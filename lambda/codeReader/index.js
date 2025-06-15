@@ -102,7 +102,7 @@ async function handler(event, context) {
 
             // Process the code graph with batch.
             let allFiles = await listGraphFiles(uuid);
-            const BATCH_SIZE = 30;
+            const BATCH_SIZE = 15;
             const processedCount = await processCodeBatch(uuid, allFiles, BATCH_SIZE);
 
             if (processedCount > 0) {

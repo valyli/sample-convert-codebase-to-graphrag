@@ -20,6 +20,7 @@ const { invokeCommand } = require('./bedrock/runtime');
 const { getSystemPrompt } = require('./bedrock/prompt');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { findFiles } = require('./utils/utils');
 
 const resFolder = '/tmp/res';
@@ -51,7 +52,9 @@ async function scanRepository(repositoryRoot) {
                 continue;
             }
 
-            const fileNameToSave = path.relative(repositoryRoot, file).replace(/[/.]/g, '-') + '.json';
+            // Create a hash of the file path to ensure filename isn't too long
+            const fileHash = crypto.createHash('md5').update(path.relative(repositoryRoot, file)).digest('hex');
+            const fileNameToSave = fileHash + '.json';
             console.log(`Processing ${file} and save it as ${fileNameToSave}`);
             const classContent = fs.readFileSync(file, 'utf8');
             const classMeta = await generateClassMeta(filesWithRelativePath.join('\n'), path.relative(repositoryRoot, file), classContent);
@@ -75,7 +78,9 @@ async function scanFile(localRepositoryRoot, fileStructure, file) {
         return null;
     }
 
-    const fileNameToSave = path.relative(localRepositoryRoot, file).replace(/[/.]/g, '-') + '.json';
+    // Create a hash of the file path to ensure filename isn't too long
+    const fileHash = crypto.createHash('md5').update(path.relative(localRepositoryRoot, file)).digest('hex');
+    const fileNameToSave = fileHash + '.json';
     console.log(`Processing ${file} and save it as ${fileNameToSave}`);
 
     try {

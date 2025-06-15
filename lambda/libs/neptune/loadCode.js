@@ -246,7 +246,8 @@ async function upsertFunction(graphId, name, fullClassName, params = new Map()) 
             property(cardinality.single, 'full_classname', fullClassName)
     )
     for (const [key, value] of params) {
-        result = result.property(cardinality.single, key, value);
+        const stringValue = Array.isArray(value) ? value.join(', ') : String(value);
+        result = result.property(cardinality.single, key, stringValue);
     }
     result = await result.next();
     mFunctionObjMap.set(`${fullClassName}/${name}`, result.value);
@@ -261,7 +262,8 @@ async function upsertEnum(graphId, name, fullClassName, params = new Map()) {
             property(cardinality.single, 'full_classname', fullClassName)
     )
     for (const [key, value] of params) {
-        result = result.property(cardinality.single, key, value);
+        const stringValue = Array.isArray(value) ? value.join(', ') : String(value);
+        result = result.property(cardinality.single, key, stringValue);
     }
     result = await result.next();
     mEnumObjMap.set(`${fullClassName}/${name}`, result.value);

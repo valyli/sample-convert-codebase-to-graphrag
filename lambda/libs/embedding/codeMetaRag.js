@@ -276,8 +276,11 @@ async function upsertFunctionMetaRagFromDocument(graphId, documents) {
 
     for (let i = 0; i < documents.length; i++) {
         const classObj = documents[i];
-        const fullClassName = `${classObj.Class.Path}/${classObj.Class.Name}`;
+        if (!classObj.Class) {
+            continue;
+        }
 
+        const fullClassName = `${classObj.Class.Path}/${classObj.Class.Name}`;
         if (!classObj.Class.Path || !classObj.Class.Name) {
             continue;
         }

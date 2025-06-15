@@ -84,10 +84,10 @@ async function handler(event, context) {
             // Download the code
             const { downloadDir } = await downloadCode(uuid, gitUrl, branch);
             console.log(`Upload ${downloadDir} to ${bucketName}/${CODE_SOURCE_BUCKET_PREFIX}/${uuid}`);
-            const files = await uploadFolderToS3(bucketName, downloadDir, `${CODE_SOURCE_BUCKET_PREFIX}/${uuid}`);
+            const files = await uploadFolderToS3(bucketName, downloadDir, `${CODE_SOURCE_BUCKET_PREFIX}/${uuid}`, subFolder);
             
             // Update the code graph status in DB.
-            await saveGraphFileItems(uuid, downloadDir, files, subFolder);
+            await saveGraphFileItems(uuid, files);
             await updateCodeGraphStatus(uuid, CODE_GRAPH_TABLE_STATUS_CODE_ANALYSING);
 
             const sendMessageResult = await invokeSQS(queueUrl, {
