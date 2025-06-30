@@ -48,7 +48,7 @@
 
       <div class="form-group">
         <label for="scanFolder">File Filter: (for example: **/* or src/**/*.java)</label>
-        <input type="text" id="scanFolder" v-model="formData.scanFolder" placeholder="**/*">
+        <input type="text" id="scanFolder" v-model="formData.scanFolder">
       </div>
 
       <!-- <div class="form-group">
@@ -81,7 +81,7 @@ export default {
           variable: false
         },
         fileMatch: '*/**',
-        scanFolder: '',
+        scanFolder: '**/*',
         bedrockPauseTime: 2500
       }
     }
