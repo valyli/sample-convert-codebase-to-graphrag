@@ -39,7 +39,7 @@ export default {
   name: 'SettingsView',
   data() {
     return {
-      apiUrl: localStorage.getItem('apiUrl') || 'https://zkbt0wdjh6.execute-api.us-east-1.amazonaws.com/prod'
+      apiUrl: localStorage.getItem('apiUrl') || 'http://localhost:8080'
     }
   },
   methods: {
