@@ -68,7 +68,7 @@ export default {
   data() {
     return {
       isLoading: false,
-      apiUrl: localStorage.getItem('apiUrl') || 'http://localhost:8080',
+      apiUrl: localStorage.getItem('apiUrl') || 'https://zkbt0wdjh6.execute-api.us-east-1.amazonaws.com/prod',
       apiResponse: '',
       showDialog: false,
       formData: {
@@ -92,7 +92,7 @@ export default {
       
       this.isLoading = true;
       console.log('Form submitted:', this.formData.githubUrl, this.formData.branchName);
-      const apiUrl = `${this.apiUrl}/createCodeGraph?gitUrl=${this.formData.githubUrl}&branch=${this.formData.branchName}&subFolder=${this.formData.scanFolder}&bedrockAPIPauseTime=${this.formData.bedrockPauseTime}`
+      const apiUrl = `${this.apiUrl}/createCodeGraph?gitUrl=${encodeURIComponent(this.formData.githubUrl)}&branch=${encodeURIComponent(this.formData.branchName)}&subFolder=${encodeURIComponent(this.formData.scanFolder)}&bedrockAPIPauseTime=${this.formData.bedrockPauseTime}`
       
       axios.post(apiUrl)
         .then(response => {

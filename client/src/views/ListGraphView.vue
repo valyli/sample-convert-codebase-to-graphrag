@@ -71,7 +71,7 @@ export default {
     return {
       loading: false,
       graphs: [],
-      apiUrl: localStorage.getItem('apiUrl') || 'http://localhost:8080',
+      apiUrl: localStorage.getItem('apiUrl') || 'https://zkbt0wdjh6.execute-api.us-east-1.amazonaws.com/prod',
       showDialog: false,
       apiResponse: '',
     };

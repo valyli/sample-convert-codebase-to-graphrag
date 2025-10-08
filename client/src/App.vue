@@ -30,6 +30,16 @@ export default {
   components: {
     SidebarNav
   },
+  data() {
+    return {
+      currentPage: 'listgraphs'
+    }
+  },
+  methods: {
+    changePage(page) {
+      this.currentPage = page
+    }
+  }
 }
 </script>
 

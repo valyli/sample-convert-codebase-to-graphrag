@@ -64,16 +64,25 @@ async function processCodeBatch(uuid, allFiles, batchSize) {
         let localFilePath = await downloadS3File(bucketName, `${CODE_SOURCE_BUCKET_PREFIX}/${uuid}`, filePath, localFolder);
 
         // Analyse the file
-        const { fileName, fullPath, fileContent } = await scanFile(localFolder, allFiles, localFilePath);
+        const scanResult = await scanFile(localFolder, allFiles, localFilePath);
+        
+        if (scanResult) {
+            const { fileName, fullPath, fileContent } = scanResult;
+            
+            // Upload the scanned file to S3
+            const result = await uploadFileToS3(bucketName, fullPath, `${CODE_PROCRESS_BUCKET_PREFIX}/${uuid}/${fileName}`);
 
-        // Upload the scanned file to S3
-        const result = await uploadFileToS3(bucketName, fullPath, `${CODE_PROCRESS_BUCKET_PREFIX}/${uuid}/${fileName}`);
+            // Save the object info to Neptune & rag
+            await processFile(uuid, JSON.parse(fileContent));
 
-        // Save the object info to Neptune & rag
-        await processFile(uuid, JSON.parse(fileContent));
-
-        // Update the dynamodb
-        if (result) {
+            // Update the dynamodb
+            if (result) {
+                await markScaned(uuid, filePath);
+                processedCount++;
+            }
+        } else {
+            // File was skipped, mark as scanned anyway
+            console.log(`File ${filePath} was skipped during scanning, marking as processed`);
             await markScaned(uuid, filePath);
             processedCount++;
         }

@@ -287,7 +287,8 @@ async function upsertFunctionMetaRagFromDocument(graphId, documents) {
 
         // Look through all the functions within the class.
         const operations = [];
-        for (const functionObj of classObj.Functions) {
+        if (classObj.Functions && Array.isArray(classObj.Functions)) {
+            for (const functionObj of classObj.Functions) {
             if (!functionObj.Properties || !functionObj.Name) {
                 continue;
             }
@@ -310,6 +311,7 @@ async function upsertFunctionMetaRagFromDocument(graphId, documents) {
                     doc_as_upsert: true
                 }
             );
+            }
         }
 
         if (operations.length > 0) {

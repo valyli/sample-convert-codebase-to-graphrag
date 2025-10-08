@@ -394,6 +394,11 @@ export class CodeGraphSearchStack extends cdk.Stack {
     const api = new apigateway.LambdaRestApi(this, 'CodeGraphApi', {
       handler: codeDownloadLambdaFunction,
       proxy: false,
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: ['Content-Type', 'X-Amz-Date', 'Authorization', 'X-Api-Key', 'X-Amz-Security-Token'],
+      },
     });
 
     const createCodeGraphResource = api.root.addResource('createCodeGraph');
